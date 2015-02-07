@@ -1,9 +1,178 @@
 Jython NEWS
 
+For more details, please see https://hg.python.org/jython
+
+Jython 2.7b4
+  Bugs Fixed
+    - [ 2032 ] Fixed typo in compiler/pycodegen.py
+    - [ 2190 ] Raise ValueError when unichr() is called with isolated surrogate codepoint
+    - [ 1057 ] Finalizer support (__del__) for new style classes
+    - [ 2192 ] Server requests were hanging using jython, django and django-jython
+    - [ 2204 ] Minimum (core) install will now suport Jython console
+    - [ 2184 ] inspect.callargs, including anonymous tuples in function params
+    - [ 2100 ] Fix deficiencies in PyUnicode beyond the BMP
+    - Fix bug in supporting meta path importers for six
+    - [ 2183 ] Rework function attributes support
+    - [ 2115 ] Allow bound methods as arg for single method interface param
+    - [ 2163 ] Refactor Py, PySystemState to init constants early
+    - [ 2217 ] Update serial release to 3 for sys.version_info
+    - [ 2090, 1494 ] Behaviour of long in the JSR-223 engine
+    - [ 2196 ] Do not emit duplicate entries in building standalone jar
+    - [ 1708 ] Ensure regrtest runs in a C locale to avoid failures
+    - [ 2037 ] Prevent non-byte values appearing in str()
+    - [ 2205 ] Guard via module import lock all entry points from Java into import
+    - [ 1631 ] Fully proxy java.util.Map objects as Python dicts
+    - [ 2215 ] Fully proxy java.util.List objects as Python lists
+    - [ 2242 ] select.select and related socket.connect_ex fixes
+    - [ 2241 ] Fully proxy java.util.Set objects as Python sets
+    - [ 2239, 1825 ] os.getenv, os.listdir may return unicode instead of bytes
+    - [ 2110 ] Update Java Native Runtime jars
+    - [ 2236 ] Interactive parser does not accept try ... except E as e: syntax
+    - [ 2232 ] Visit class decorators when visiting class def in scopes compilation
+    - [ 2247 ] dict.pop should not add additional quoting in KeyError
+    - [ 2238 ] os.system now uses a simpler wrapping of ProcessBuilder
+    - [ 1561 ] Raises NotImplementedError if abstract method from Java is not implemented
+    - [ 2221 ] Implement Popen.pid 
+    - [ 2150 ] Fix regrtest to support -x to exclude tests
+    - [ 1152612 ] All dict methods for __dict__ except views
+    - [ 1762054 ] Add webbrowser module
+    - [ 2252 ] Args in sys.argv are now unicode if characters > 127
+    - [ 2092 ] Upgrade to JLine2 and add tab completion support
+    - [ 2236 ] Interactive parser does not accept try ... except E as e: syntax
+    - [ 2237 ] Fully conformant math and cmath support
+    - [ 2244 ] More robust testing of math and cmath modules
+
+  New features
+    - Full support of Python buffer protocol, along with Java ByteBuffer support
+    - Add index to PyUnicode facilitating O(1) access to strings beyond the BMP.
+    - java.util.{Map, List, Set} are now treated as subclasses of the
+      corresponding Python abstract base classes
+    - jythonlib module to simplify usage of Java internals from Python;
+      weakref collections now directly use corresponding collections from
+      Google Guava and java.util
+    - CPython's _json.c was ported to Java to speed up JSON encoding/decoding
+    - Upgraded third party libraries
+    - Initial support for ensurepip module
+    - Callbacks can be registered/unregistered to be notified when
+      bytecode is loaded, using jythonlib.bytecodetools
+
+  Potentially backwards breaking changes, removing silent errors:
+
+    - remove method on proxied List objects now follows Python
+      sematics: a ValueError is raised if the item is not found in the
+      java.util.List. In the past, Java semantics were used, with a
+      boolean returned indicating if the item was removed or
+      not. Given how this interacted with Jython, such remove
+      invocations were in the past silent, and perhaps were actually a
+      bug.
+
+    - d[key_not_present], if d implement java.util.Map, no longer
+      returns None, but raises KeyError, which means this behavior now
+      matches standard dict semantics.
+
+    - Abstract methods of an inherited class or interface from Java now raise
+      NotImplementedError, instead of returning None (in Java, null) or some
+      "zero", if they are not implemented in the extending Python class.
+
+    - os.getenv, os.listdir, sys.argv now return unicode instead of
+      str values if a given value is not ascii, thus allowing such
+      values to be passed through to Java, eg
+      java.io.File(sys.argv[1]). Earlier such behavior was potentially
+      silently failing in Python functions, but passing through to
+      Java because of bug 2037. This behavior conforms with Python
+      3.x, which uses Unicode.
+
+Jython 2.7b3
+  Bugs Fixed
+    - [ 2225 ] Jython+django-jython - no module named site
+    - [ 2108 ] Cannot set attribute to instances of AST/PythonTree (blocks pyflakes)
+    - [ 1497 ] ast classes do not have appropiate base classes
+    - [ 1980 ] ast.Eq, ast.Gt, ast.GtE, ast.In, ast.Is, ast.IsNot, ast.Lt, ast.LtE, ast.NotEq and ast.NotIn should be subclasses of ast.cmpop
+    - [ 1981 ] ast.And and ast.Or should be subclasses of ast.boolop
+  New Features
+    - [ 1896215 ] findResource(s) for SyspathJavaLoader
+    - [ 1591 ] Interactive interpreter stuck on '...' loop
+    - Added socket reboot work, using Netty 4 to fully support socket, select, and ssl API
+
+Jython 2.7b2
+  Bugs Fixed
+    - [ 1753 ] zlib doesn't call end() on compress and decompress
+    - [ 1860 ] test failures in test_array.py
+    - [ 1862 ] cStringIO does not support arrays as arguments
+    - [ 1876 ] PYTHONIOENCODING unsupported, used (among others) by PyDev
+    - [ 1926 ] Adjust MutableSet.pop test so we do not need to skip it
+    - [ 1964 ] time.strptime() does not support %f in format
+    - [ 2005 ] threading.Event object's wait([timeout]) function returns null instead of True/False.
+    - [ 2013 ] %x hex formatting takes O(N^2) time.
+    - [ 2020 ] str.translate should delete characters in the second arg when table is None
+    - [ 2027 ] Discrepancy in bin(-num) output
+    - [ 2033 ] test_strptime fails: test_mar1_comes_after_feb29_even_when_omitting_the_year
+    - [ 2046 ] sys.stdin.readline() hangs when used interactively (JLine, Windows)
+    - [ 2060 ] Thread ident missing
+    - [ 2071 ] datetime strftime %f does not work
+    - [ 2075 ] Incorrect padding for hex format strings
+    - [ 2082 ] Unexpected (Pdb) prompt during regression tests
+    - [ 2083 ] os.unlink() can delete directories
+    - [ 2089 ] sys.stdout not flushed after sys.exit
+  New Features
+    - Command line option -E (ignore environment variables)
+    - Environment variable PYTHONIOENCODING, and corresponding registry items
+
+Jython 2.7b1
+  Bugs Fixed
+    - [ 1716 ] xrange slicing raises NPE.
+    - [ 1968 ] Fixes for test_csv.py.
+    - [ 1989 ] condition.notify_all() is missing.
+    - [ 1994 ] threading.Event doesn't have is_set method fixed.
+    - [ 1327 ] ThreadState needs API cleanup work
+    - [ 1309 ] Server sockets do not support client options and propagate them to 'accept'ed client sockets.
+    - [ 1951 ] Bytecode Interpreter stack optimization for larger arguments
+    - [ 1894 ] bytearray does not support '+' or .join()
+    - [ 1921 ] compiler module broken in Jython 2.7 
+    - [ 1920 ] Backport CO_FUTURE_PRINT_FUNCTION to Lib/compiler/pycodegen.py
+    - [ 1914 ] Float formatting broken in many non-English locales in Jython 2.7
+    - [ 1909 ] attrgetter does not parse dotted attributes
+    - [ 1924 ] Implement operator.methodcaller
+    - [ 1934 ] Break itertools.compress into a separate class 
+    - [ 1933 ] Break itertools.cycle into a separate class
+    - [ 1932 ] Make check for iterability in chain() arguments lazy
+    - [ 1931 ] Check that there are exactly 2 filter args
+    - [ 1913 ] Support short -W options
+    - [ 1897 ] 2.7.0ax only has partial ssl support
+    - array_class in jarray module returns the "Array of a type" class
+  New Features
+    - bytearray complete
+    - a buffer API
+    - memoryview
+    - bz2 module
+
+Jython 2.7a2
+    - [ 1892 ] site-packages is not in sys.path
+
 Jython 2.7a1
   Bugs Fixed
+    - [ 1880 ] Sha 224 library not present in Jython
+
+Jython 2.5.4rc2
+  Bugs Fixed
+    - [ 2017 ] jython.bat script pollutes environment! (variables)
+    - [ 1899 ] Fix to platform.py to correctly avoid a warning message on Windows.
+    - [ 1988 ] API for threading.condition fails to accept *args for acquire
+    - [ 1753 ] zlib doesn't call end() on compress and decompress
+    - [ 1971 ] platform.py - 'NoneType' object has no attribute 'groups'
+    - [ 1988 ] API for threading.condition fails to accept *args for acquire
+
+Jython 2.5.4rc1
+  Bugs Fixed
+    - [ 1936 ] JBoss 7, vfs protocol in use for jarFileName in PySystemState.
+    - [ 1972 ] jython 2.5.3 sys.stdin.readline() hangs when jython launched as subprocess on Mac OS X.
+    - [ 1962 ] Interactive console in Jython 2.5.3 needs CRTL-D to execute command.
+    - [ 1676 ] NPE in defaultdict 
+    - [ 1481 ] jython throws java.lang.IllegalArgumentException instead of ValueError.
+    - [ 1716 ] xrange slicing raises NPE.
 
 Jython 2.5.3rc1
+  Bugs Fixed
     - [ 1952 ] __import__(): Handling of non-dict globals argument incompatible with CPython
     - [ 1900 ] Python imports from Java cause some Python imports to fail
 
@@ -32,6 +201,7 @@ Jython 2.5.3b2
 
 Jython 2.5.3b1
   Bugs Fixed
+    - [ 1835 ] s/occured/occurred/ :)
     - [ 1727 ] Error in Jython 2.5.2 with os.stat and varargs
     - [ 1735 ] return type of os.read is unicode, not str
     - [ 1755 ] os.utime('/tmp/nonexistent-file', None) fails to raise OSError
